@@ -27,7 +27,7 @@ export function productImages(product: Product) {
 
 export type CartItem = { id: string; size: string; color: string; qty: number };
 
-export const WHATSAPP_NUMBER = "+55 85 9994514478"; // troque pelo seu número
+export const WHATSAPP_NUMBER = "5585945144478"; // número correto: +55 85 9451-4478
 export const ADMIN_PASSWORD = "anadom2026"; // senha simples de demonstração
 
 const PRODUCTS_KEY = "uad:products:v3";
