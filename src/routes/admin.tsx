@@ -23,7 +23,17 @@ export const Route = createFileRoute("/admin")({
   component: AdminPage,
 });
 
-const emptyForm = { id: "", name: "", price: "", image: "", category: "", description: "", sizes: "", colors: "" };
+const emptyForm = {
+  id: "",
+  name: "",
+  price: "",
+  image: "",
+  images: "",
+  category: "",
+  description: "",
+  sizes: "",
+  colors: "",
+};
 
 function AdminPage() {
   const { isAdmin, login, logout } = useAdminSession();
@@ -67,6 +77,7 @@ function AdminPage() {
       name: p.name,
       price: String(p.price),
       image: p.image,
+      images: (p.images ?? []).join("\n"),
       category: p.category,
       description: p.description,
       sizes: p.sizes.join(", "),
@@ -89,6 +100,11 @@ function AdminPage() {
       name: form.name.trim().slice(0, 80),
       price,
       image: form.image.trim() || "https://placehold.co/900x1100?text=Sem+foto",
+      images: form.images
+        .split(/[\n,]/)
+        .map((s) => s.trim())
+        .filter(Boolean)
+        .slice(0, 10),
       category: form.category.trim().slice(0, 40) || "Geral",
       description: form.description.trim().slice(0, 300),
       sizes: form.sizes
@@ -145,6 +161,19 @@ function AdminPage() {
                   value={form.image}
                   onChange={(e) => setForm({ ...form, image: e.target.value })}
                 />
+              </div>
+              <div>
+                <Label htmlFor="images">Mais fotos (um link por linha)</Label>
+                <Textarea
+                  id="images"
+                  rows={3}
+                  placeholder={"https://foto2.jpg\nhttps://foto3.jpg"}
+                  value={form.images}
+                  onChange={(e) => setForm({ ...form, images: e.target.value })}
+                />
+                <p className="mt-1 text-xs text-muted-foreground">
+                  Aparecem como galeria na vitrine, estilo Instagram.
+                </p>
               </div>
               <div>
                 <Label htmlFor="category">Categoria</Label>

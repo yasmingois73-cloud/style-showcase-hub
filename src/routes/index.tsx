@@ -1,11 +1,12 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
 import { toast } from "sonner";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 
 import heroAsset from "@/assets/hero-catalogo.jpg.asset.json";
 import { SiteFooter, SiteHeader } from "@/components/SiteHeader";
 import { Button } from "@/components/ui/button";
-import { brl, colorSwatch, useCart, useProducts, type Product } from "@/lib/shop";
+import { brl, colorSwatch, productImages, useCart, useProducts, type Product } from "@/lib/shop";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -31,17 +32,68 @@ function ProductCard({ product }: { product: Product }) {
   const [size, setSize] = useState(product.sizes[0] ?? "Único");
   const colors = product.colors ?? [];
   const [color, setColor] = useState(colors[0] ?? "Única");
+  const gallery = productImages(product);
+  const [photo, setPhoto] = useState(0);
+  const current = Math.min(photo, gallery.length - 1);
+  const go = (dir: number) => setPhoto((i) => (i + dir + gallery.length) % gallery.length);
 
   return (
     <article className="group">
-      <div className="overflow-hidden rounded-lg bg-secondary">
+      <div className="relative overflow-hidden rounded-lg bg-secondary">
         <img
-          src={product.image}
-          alt={product.name}
+          src={gallery[current]}
+          alt={`${product.name} — foto ${current + 1}`}
           loading="lazy"
           className="aspect-[9/11] w-full object-cover transition-transform duration-700 group-hover:scale-105"
         />
+        {gallery.length > 1 && (
+          <>
+            <button
+              aria-label="Foto anterior"
+              onClick={() => go(-1)}
+              className="absolute left-2 top-1/2 -translate-y-1/2 rounded-full bg-background/80 p-1.5 text-foreground opacity-0 transition-opacity group-hover:opacity-100"
+            >
+              <ChevronLeft className="h-4 w-4" />
+            </button>
+            <button
+              aria-label="Próxima foto"
+              onClick={() => go(1)}
+              className="absolute right-2 top-1/2 -translate-y-1/2 rounded-full bg-background/80 p-1.5 text-foreground opacity-0 transition-opacity group-hover:opacity-100"
+            >
+              <ChevronRight className="h-4 w-4" />
+            </button>
+            <div className="absolute bottom-2 left-1/2 flex -translate-x-1/2 gap-1.5">
+              {gallery.map((src, i) => (
+                <button
+                  key={src + i}
+                  aria-label={`Ver foto ${i + 1}`}
+                  onClick={() => setPhoto(i)}
+                  className={`h-1.5 w-1.5 rounded-full transition-colors ${
+                    i === current ? "bg-foreground" : "bg-foreground/30"
+                  }`}
+                />
+              ))}
+            </div>
+          </>
+        )}
       </div>
+
+      {gallery.length > 1 && (
+        <div className="mt-2 flex gap-2 overflow-x-auto">
+          {gallery.map((src, i) => (
+            <button
+              key={src + i}
+              onClick={() => setPhoto(i)}
+              aria-label={`Ver foto ${i + 1}`}
+              className={`h-14 w-12 shrink-0 overflow-hidden rounded border transition-colors ${
+                i === current ? "border-foreground" : "border-border"
+              }`}
+            >
+              <img src={src} alt="" loading="lazy" className="h-full w-full object-cover" />
+            </button>
+          ))}
+        </div>
+      )}
       <div className="mt-4 space-y-2">
         <p className="text-xs uppercase tracking-[0.2em] text-muted-foreground">{product.category}</p>
         <h3 className="font-display text-xl text-foreground">{product.name}</h3>

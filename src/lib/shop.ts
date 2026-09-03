@@ -13,11 +13,17 @@ export type Product = {
   name: string;
   price: number;
   image: string;
+  images?: string[];
   category: string;
   description: string;
   sizes: string[];
   colors: string[];
 };
+
+export function productImages(product: Product) {
+  const extra = (product.images ?? []).map((s) => s.trim()).filter(Boolean);
+  return [product.image, ...extra.filter((u) => u !== product.image)].filter(Boolean);
+}
 
 export type CartItem = { id: string; size: string; color: string; qty: number };
 
