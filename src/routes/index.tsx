@@ -1,6 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
 import { toast } from "sonner";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 
 import heroAsset from "@/assets/hero-catalogo.jpg.asset.json";
 import { SiteFooter, SiteHeader } from "@/components/SiteHeader";
