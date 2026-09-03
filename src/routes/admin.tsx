@@ -97,7 +97,8 @@ function AdminPage() {
       return;
     }
 
-    saveProduct({
+    try {
+      saveProduct({
       id: form.id || crypto.randomUUID(),
       name: form.name.trim().slice(0, 80),
       price,
