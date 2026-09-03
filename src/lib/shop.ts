@@ -208,3 +208,17 @@ export function useAdminSession() {
 }
 
 export const brl = (value: number) => value.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
+
+const COLOR_HEX: Record<string, string> = {
+  preto: "#1c1c1c",
+  branco: "#f5f3ee",
+  cru: "#e8dfcf",
+  bege: "#d8c3a5",
+  marinho: "#1f2c4c",
+  "bordô": "#5d1a2b",
+  marrom: "#6b4a34",
+};
+
+export function colorSwatch(name: string) {
+  return COLOR_HEX[name.trim().toLowerCase()] ?? "#c9c9c9";
+}
