@@ -154,16 +154,41 @@ function AdminPage() {
                 />
               </div>
               <div>
-                <Label htmlFor="image">Link da foto</Label>
+                <Label htmlFor="image">Foto principal</Label>
                 <Input
                   id="image"
-                  placeholder="https://..."
+                  placeholder="Cole um link https://... ou envie a foto abaixo"
                   value={form.image}
                   onChange={(e) => setForm({ ...form, image: e.target.value })}
                 />
+                <div className="mt-2 flex items-center gap-3">
+                  <label className="cursor-pointer rounded-full border border-border px-3 py-1.5 text-xs text-foreground hover:border-foreground">
+                    Enviar foto do celular
+                    <input
+                      type="file"
+                      accept="image/*"
+                      className="hidden"
+                      onChange={async (e) => {
+                        const file = e.target.files?.[0];
+                        e.target.value = "";
+                        if (!file) return;
+                        try {
+                          const url = await fileToCompressedDataUrl(file);
+                          setForm((f) => ({ ...f, image: url }));
+                          toast.success("Foto principal carregada");
+                        } catch {
+                          toast.error("Não consegui carregar essa foto");
+                        }
+                      }}
+                    />
+                  </label>
+                  {form.image && (
+                    <img src={form.image} alt="Prévia" className="h-14 w-12 rounded object-cover" />
+                  )}
+                </div>
               </div>
               <div>
-                <Label htmlFor="images">Mais fotos (um link por linha)</Label>
+                <Label htmlFor="images">Mais fotos (galeria)</Label>
                 <Textarea
                   id="images"
                   rows={3}
@@ -171,10 +196,46 @@ function AdminPage() {
                   value={form.images}
                   onChange={(e) => setForm({ ...form, images: e.target.value })}
                 />
+                <div className="mt-2 flex flex-wrap items-center gap-3">
+                  <label className="cursor-pointer rounded-full border border-border px-3 py-1.5 text-xs text-foreground hover:border-foreground">
+                    Enviar mais fotos
+                    <input
+                      type="file"
+                      accept="image/*"
+                      multiple
+                      className="hidden"
+                      onChange={async (e) => {
+                        const files = Array.from(e.target.files ?? []);
+                        e.target.value = "";
+                        if (files.length === 0) return;
+                        try {
+                          const urls = await Promise.all(files.map((f) => fileToCompressedDataUrl(f)));
+                          setForm((f) => ({
+                            ...f,
+                            images: [f.images.trim(), ...urls].filter(Boolean).join("\n"),
+                          }));
+                          toast.success(`${urls.length} foto(s) adicionada(s)`);
+                        } catch {
+                          toast.error("Não consegui carregar essas fotos");
+                        }
+                      }}
+                    />
+                  </label>
+                  {form.images
+                    .split(/[\n,]/)
+                    .map((s) => s.trim())
+                    .filter(Boolean)
+                    .slice(0, 6)
+                    .map((src, i) => (
+                      <img key={i} src={src} alt="" className="h-14 w-12 rounded object-cover" />
+                    ))}
+                </div>
                 <p className="mt-1 text-xs text-muted-foreground">
-                  Aparecem como galeria na vitrine, estilo Instagram.
+                  Aparecem como galeria na vitrine, estilo Instagram. Você pode enviar fotos direto do
+                  celular ou colar links.
                 </p>
               </div>
+
               <div>
                 <Label htmlFor="category">Categoria</Label>
                 <Input
