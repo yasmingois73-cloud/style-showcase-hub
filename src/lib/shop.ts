@@ -1,9 +1,12 @@
 import { useCallback, useEffect, useState } from "react";
 
-import p1 from "@/assets/p1.jpg";
-import p2 from "@/assets/p2.jpg";
-import p3 from "@/assets/p3.jpg";
-import p4 from "@/assets/p4.jpg";
+import conjuntoShortAsset from "@/assets/conjunto-short.jpg.asset.json";
+import conjuntoCalcaAsset from "@/assets/conjunto-calca.jpg.asset.json";
+import blusaDomAsset from "@/assets/blusa-dom.jpg.asset.json";
+import shortDomAsset from "@/assets/short-dom.jpg.asset.json";
+import calcaDomAsset from "@/assets/calca-dom.jpg.asset.json";
+import blusaNathyAsset from "@/assets/blusa-nathy.jpg.asset.json";
+import shortAnaAsset from "@/assets/short-ana.jpg.asset.json";
 
 export type Product = {
   id: string;
@@ -20,46 +23,73 @@ export type CartItem = { id: string; size: string; qty: number };
 export const WHATSAPP_NUMBER = "5511999999999"; // troque pelo seu número
 export const ADMIN_PASSWORD = "anadom2026"; // senha simples de demonstração
 
-const PRODUCTS_KEY = "uad:products";
+const PRODUCTS_KEY = "uad:products:v2";
 const CART_KEY = "uad:cart";
 const ADMIN_KEY = "uad:admin";
 
 export const defaultProducts: Product[] = [
   {
-    id: "1",
-    name: "Blusa Canelada Oliva",
-    price: 89.9,
-    image: p1,
-    category: "Tops",
-    description: "Canelado macio de caimento perfeito, para usar em todas as versões de você.",
-    sizes: ["P", "M", "G"],
+    id: "conjunto-dom-short",
+    name: "Conjunto Dom — Blusa + Short",
+    price: 109.9,
+    image: conjuntoShortAsset.url,
+    category: "Conjuntos",
+    description: "Combinação moderna e chique: blusa peplum com decote V e short de cintura alta.",
+    sizes: ["P", "M"],
   },
   {
-    id: "2",
-    name: "Calça Pantalona Caramelo",
-    price: 179.9,
-    image: p2,
+    id: "conjunto-dom-calca",
+    name: "Conjunto Dom — Blusa + Calça",
+    price: 119.9,
+    image: conjuntoCalcaAsset.url,
+    category: "Conjuntos",
+    description: "Elegância do dia à noite: blusa peplum com calça de alfaiataria no mesmo tecido.",
+    sizes: ["P", "M"],
+  },
+  {
+    id: "blusa-dom",
+    name: "Blusa Dom",
+    price: 59.9,
+    image: blusaDomAsset.url,
+    category: "Blusas",
+    description: "Peplum com decote transpassado e amarração. Disponível em preto, bordô, cru e marinho.",
+    sizes: ["P", "M"],
+  },
+  {
+    id: "short-dom",
+    name: "Short Dom",
+    price: 59.9,
+    image: shortDomAsset.url,
+    category: "Shorts",
+    description: "Cintura alta e caimento confortável — combina perfeito com a Blusa Dom.",
+    sizes: ["P", "M"],
+  },
+  {
+    id: "calca-dom",
+    name: "Calça Dom",
+    price: 69.9,
+    image: calcaDomAsset.url,
     category: "Calças",
-    description: "Linho leve, cintura alta e pernas amplas — conforto com atitude.",
-    sizes: ["36", "38", "40", "42"],
+    description: "Alfaiataria leve com amarração. Nas cores marinho, bordô e cru.",
+    sizes: ["P", "M"],
   },
   {
-    id: "3",
-    name: "Body Maiô Preto",
-    price: 149.9,
-    image: p3,
-    category: "Praia",
-    description: "Clássico atemporal em tecido de alta compressão.",
-    sizes: ["P", "M", "G"],
+    id: "blusa-nathy",
+    name: "Blusa Nathy",
+    price: 44.9,
+    image: blusaNathyAsset.url,
+    category: "Blusas",
+    description: "A mais querida: estilo e conforto em alcinha canelada. Vários tons disponíveis.",
+    sizes: ["P", "M"],
   },
   {
-    id: "4",
-    name: "Camisa Oversized Cru",
-    price: 199.9,
-    image: p4,
-    category: "Camisas",
-    description: "Alfaiataria relaxada em linho misto, para o dia inteiro.",
-    sizes: ["Único"],
+    id: "short-ana",
+    name: "Short Ana",
+    price: 59.9,
+    image: shortAnaAsset.url,
+    category: "Shorts",
+    description: "Cintura alta com passantes para cinto. Nas cores marrom, branco e preto.",
+    sizes: ["PP", "P", "M"],
   },
 ];
 

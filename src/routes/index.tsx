@@ -2,7 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
 import { toast } from "sonner";
 
-import heroImg from "@/assets/hero.jpg";
+import heroAsset from "@/assets/hero-catalogo.jpg.asset.json";
 import { SiteFooter, SiteHeader } from "@/components/SiteHeader";
 import { Button } from "@/components/ui/button";
 import { brl, useCart, useProducts, type Product } from "@/lib/shop";
@@ -102,10 +102,10 @@ function Home() {
         <div className="relative">
           <div className="absolute -inset-3 rounded-2xl bg-[image:var(--gradient-sun)] opacity-70 blur-xl" />
           <img
-            src={heroImg}
-            alt="Modelo usando blusa canelada oliva e calça caramelo"
-            width={1400}
-            height={1600}
+            src={heroAsset.url}
+            alt="Modelos usando o Conjunto Dom em bordô da use ana dom"
+            width={941}
+            height={1672}
             className="relative aspect-[7/8] w-full rounded-2xl object-cover"
           />
         </div>
