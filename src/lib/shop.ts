@@ -119,7 +119,13 @@ function read<T>(key: string, fallback: T): T {
 
 function write(key: string, value: unknown) {
   if (typeof window === "undefined") return;
-  localStorage.setItem(key, JSON.stringify(value));
+  try {
+    localStorage.setItem(key, JSON.stringify(value));
+  } catch {
+    throw new Error(
+      "As fotos ficaram muito pesadas para o navegador. Remova algumas fotos ou envie imagens menores.",
+    );
+  }
   window.dispatchEvent(new CustomEvent("uad:store"));
 }
 
