@@ -9,7 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { brl, useCart, useProducts, WHATSAPP_NUMBER } from "@/lib/shop";
+import { brl, colorSwatch, useCart, useProducts, WHATSAPP_NUMBER } from "@/lib/shop";
 
 export const Route = createFileRoute("/carrinho")({
   head: () => ({
@@ -56,7 +56,7 @@ function CartPage() {
     const text = [
       "Olá! Quero fazer um pedido na use ana dom:",
       "",
-      ...lines.map((l) => `• ${l.product!.name} — tam ${l.size} × ${l.qty} — ${brl(l.product!.price * l.qty)}`),
+      ...lines.map((l) => `• ${l.product!.name} — tam ${l.size}${l.color ? ` · cor ${l.color}` : ""} × ${l.qty} — ${brl(l.product!.price * l.qty)}`),
       "",
       `Total: ${brl(total)}`,
       "",
@@ -90,7 +90,7 @@ function CartPage() {
           <div className="mt-8 grid gap-10 lg:grid-cols-[1.3fr_1fr]">
             <ul className="space-y-5">
               {lines.map((l) => (
-                <li key={`${l.id}-${l.size}`} className="flex gap-4 border-b border-border pb-5">
+                <li key={`${l.id}-${l.size}-${l.color}`} className="flex gap-4 border-b border-border pb-5">
                   <img
                     src={l.product!.image}
                     alt={l.product!.name}
@@ -99,22 +99,36 @@ function CartPage() {
                   />
                   <div className="flex-1">
                     <h2 className="font-display text-lg text-foreground">{l.product!.name}</h2>
-                    <p className="text-sm text-muted-foreground">Tamanho {l.size}</p>
+                    <p className="flex items-center gap-2 text-sm text-muted-foreground">
+                      Tamanho {l.size}
+                      {l.color && (
+                        <>
+                          <span aria-hidden>·</span>
+                          <span className="flex items-center gap-1.5">
+                            <span
+                              className="h-3 w-3 rounded-full border border-border"
+                              style={{ backgroundColor: colorSwatch(l.color) }}
+                            />
+                            {l.color}
+                          </span>
+                        </>
+                      )}
+                    </p>
                     <p className="mt-1 text-sm text-foreground">{brl(l.product!.price)}</p>
 
                     <div className="mt-3 flex items-center gap-3">
                       <div className="flex items-center rounded-full border border-border">
-                        <button className="px-2.5 py-1" onClick={() => setQty(l.id, l.size, l.qty - 1)}>
+                        <button className="px-2.5 py-1" onClick={() => setQty(l.id, l.size, l.color, l.qty - 1)}>
                           <Minus className="h-3.5 w-3.5" />
                         </button>
                         <span className="w-7 text-center text-sm">{l.qty}</span>
-                        <button className="px-2.5 py-1" onClick={() => setQty(l.id, l.size, l.qty + 1)}>
+                        <button className="px-2.5 py-1" onClick={() => setQty(l.id, l.size, l.color, l.qty + 1)}>
                           <Plus className="h-3.5 w-3.5" />
                         </button>
                       </div>
                       <button
                         className="text-muted-foreground transition-colors hover:text-destructive"
-                        onClick={() => remove(l.id, l.size)}
+                        onClick={() => remove(l.id, l.size, l.color)}
                         aria-label="Remover item"
                       >
                         <Trash2 className="h-4 w-4" />

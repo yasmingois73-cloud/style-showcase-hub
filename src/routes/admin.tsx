@@ -23,7 +23,7 @@ export const Route = createFileRoute("/admin")({
   component: AdminPage,
 });
 
-const emptyForm = { id: "", name: "", price: "", image: "", category: "", description: "", sizes: "" };
+const emptyForm = { id: "", name: "", price: "", image: "", category: "", description: "", sizes: "", colors: "" };
 
 function AdminPage() {
   const { isAdmin, login, logout } = useAdminSession();
@@ -70,6 +70,7 @@ function AdminPage() {
       category: p.category,
       description: p.description,
       sizes: p.sizes.join(", "),
+      colors: (p.colors ?? []).join(", "),
     });
 
   const save = () => {
@@ -95,6 +96,11 @@ function AdminPage() {
         .map((s) => s.trim())
         .filter(Boolean)
         .slice(0, 8) || ["Único"],
+      colors: form.colors
+        .split(",")
+        .map((c) => c.trim())
+        .filter(Boolean)
+        .slice(0, 12),
     });
     setForm(emptyForm);
     toast.success("Peça salva!");
@@ -155,6 +161,15 @@ function AdminPage() {
                   placeholder="P, M, G"
                   value={form.sizes}
                   onChange={(e) => setForm({ ...form, sizes: e.target.value })}
+                />
+              </div>
+              <div>
+                <Label htmlFor="colors">Cores disponíveis (separadas por vírgula)</Label>
+                <Input
+                  id="colors"
+                  placeholder="Preto, Bordô, Cru"
+                  value={form.colors}
+                  onChange={(e) => setForm({ ...form, colors: e.target.value })}
                 />
               </div>
               <div>

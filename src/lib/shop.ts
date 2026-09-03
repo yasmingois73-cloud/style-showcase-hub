@@ -16,15 +16,16 @@ export type Product = {
   category: string;
   description: string;
   sizes: string[];
+  colors: string[];
 };
 
-export type CartItem = { id: string; size: string; qty: number };
+export type CartItem = { id: string; size: string; color: string; qty: number };
 
 export const WHATSAPP_NUMBER = "+55 85 9994514478"; // troque pelo seu número
 export const ADMIN_PASSWORD = "anadom2026"; // senha simples de demonstração
 
-const PRODUCTS_KEY = "uad:products:v2";
-const CART_KEY = "uad:cart";
+const PRODUCTS_KEY = "uad:products:v3";
+const CART_KEY = "uad:cart:v2";
 const ADMIN_KEY = "uad:admin";
 
 export const defaultProducts: Product[] = [
@@ -36,6 +37,7 @@ export const defaultProducts: Product[] = [
     category: "Conjuntos",
     description: "Combinação moderna e chique: blusa peplum com decote V e short de cintura alta.",
     sizes: ["P", "M"],
+    colors: ["Preto", "Bordô", "Cru", "Marinho"],
   },
   {
     id: "conjunto-dom-calca",
@@ -45,6 +47,7 @@ export const defaultProducts: Product[] = [
     category: "Conjuntos",
     description: "Elegância do dia à noite: blusa peplum com calça de alfaiataria no mesmo tecido.",
     sizes: ["P", "M"],
+    colors: ["Marinho", "Bordô", "Cru"],
   },
   {
     id: "blusa-dom",
@@ -54,6 +57,7 @@ export const defaultProducts: Product[] = [
     category: "Blusas",
     description: "Peplum com decote transpassado e amarração. Disponível em preto, bordô, cru e marinho.",
     sizes: ["P", "M"],
+    colors: ["Preto", "Bordô", "Cru", "Marinho"],
   },
   {
     id: "short-dom",
@@ -63,6 +67,7 @@ export const defaultProducts: Product[] = [
     category: "Shorts",
     description: "Cintura alta e caimento confortável — combina perfeito com a Blusa Dom.",
     sizes: ["P", "M"],
+    colors: ["Preto", "Bordô", "Cru", "Marinho"],
   },
   {
     id: "calca-dom",
@@ -72,6 +77,7 @@ export const defaultProducts: Product[] = [
     category: "Calças",
     description: "Alfaiataria leve com amarração. Nas cores marinho, bordô e cru.",
     sizes: ["P", "M"],
+    colors: ["Marinho", "Bordô", "Cru"],
   },
   {
     id: "blusa-nathy",
@@ -81,6 +87,7 @@ export const defaultProducts: Product[] = [
     category: "Blusas",
     description: "A mais querida: estilo e conforto em alcinha canelada. Vários tons disponíveis.",
     sizes: ["P", "M"],
+    colors: ["Preto", "Branco", "Bege", "Marinho"],
   },
   {
     id: "short-ana",
@@ -90,6 +97,7 @@ export const defaultProducts: Product[] = [
     category: "Shorts",
     description: "Cintura alta com passantes para cinto. Nas cores marrom, branco e preto.",
     sizes: ["PP", "P", "M"],
+    colors: ["Marrom", "Branco", "Preto"],
   },
 ];
 
@@ -157,23 +165,27 @@ export function useProducts() {
 export function useCart() {
   const [items, setItems] = useStored<CartItem[]>(CART_KEY, []);
 
-  const add = (id: string, size: string, qty = 1) => {
-    const found = items.find((i) => i.id === id && i.size === size);
+  const same = (i: CartItem, id: string, size: string, color: string) =>
+    i.id === id && i.size === size && i.color === color;
+
+  const add = (id: string, size: string, color: string, qty = 1) => {
+    const found = items.find((i) => same(i, id, size, color));
     setItems(
       found
-        ? items.map((i) => (i.id === id && i.size === size ? { ...i, qty: i.qty + qty } : i))
-        : [...items, { id, size, qty }],
+        ? items.map((i) => (same(i, id, size, color) ? { ...i, qty: i.qty + qty } : i))
+        : [...items, { id, size, color, qty }],
     );
   };
 
-  const setQty = (id: string, size: string, qty: number) =>
+  const setQty = (id: string, size: string, color: string, qty: number) =>
     setItems(
       qty <= 0
-        ? items.filter((i) => !(i.id === id && i.size === size))
-        : items.map((i) => (i.id === id && i.size === size ? { ...i, qty } : i)),
+        ? items.filter((i) => !same(i, id, size, color))
+        : items.map((i) => (same(i, id, size, color) ? { ...i, qty } : i)),
     );
 
-  const remove = (id: string, size: string) => setItems(items.filter((i) => !(i.id === id && i.size === size)));
+  const remove = (id: string, size: string, color: string) =>
+    setItems(items.filter((i) => !same(i, id, size, color)));
 
   const clear = () => setItems([]);
 
@@ -196,3 +208,17 @@ export function useAdminSession() {
 }
 
 export const brl = (value: number) => value.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
+
+const COLOR_HEX: Record<string, string> = {
+  preto: "#1c1c1c",
+  branco: "#f5f3ee",
+  cru: "#e8dfcf",
+  bege: "#d8c3a5",
+  marinho: "#1f2c4c",
+  "bordô": "#5d1a2b",
+  marrom: "#6b4a34",
+};
+
+export function colorSwatch(name: string) {
+  return COLOR_HEX[name.trim().toLowerCase()] ?? "#c9c9c9";
+}
