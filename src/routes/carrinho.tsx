@@ -42,9 +42,15 @@ function CartPage() {
   const total = lines.reduce((sum, l) => sum + (l.product?.price ?? 0) * l.qty, 0);
 
   const submit = () => {
-    if (lines.length === 0) return toast.error("Sua sacola está vazia.");
+    if (lines.length === 0) {
+      toast.error("Sua sacola está vazia.");
+      return;
+    }
     const parsed = checkoutSchema.safeParse(form);
-    if (!parsed.success) return toast.error(parsed.error.issues[0].message);
+    if (!parsed.success) {
+      toast.error(parsed.error.issues[0]?.message ?? "Confira os dados.");
+      return;
+    }
 
     const d = parsed.data;
     const text = [

@@ -73,9 +73,15 @@ function AdminPage() {
     });
 
   const save = () => {
-    if (form.name.trim().length < 2) return toast.error("Informe o nome da peça");
+    if (form.name.trim().length < 2) {
+      toast.error("Informe o nome da peça");
+      return;
+    }
     const price = Number(form.price.replace(",", "."));
-    if (!Number.isFinite(price) || price <= 0) return toast.error("Informe um preço válido");
+    if (!Number.isFinite(price) || price <= 0) {
+      toast.error("Informe um preço válido");
+      return;
+    }
 
     saveProduct({
       id: form.id || crypto.randomUUID(),
