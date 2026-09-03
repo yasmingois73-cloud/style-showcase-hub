@@ -1,9 +1,12 @@
 import { useCallback, useEffect, useState } from "react";
 
-import p1 from "@/assets/p1.jpg";
-import p2 from "@/assets/p2.jpg";
-import p3 from "@/assets/p3.jpg";
-import p4 from "@/assets/p4.jpg";
+import conjuntoShortAsset from "@/assets/conjunto-short.jpg.asset.json";
+import conjuntoCalcaAsset from "@/assets/conjunto-calca.jpg.asset.json";
+import blusaDomAsset from "@/assets/blusa-dom.jpg.asset.json";
+import shortDomAsset from "@/assets/short-dom.jpg.asset.json";
+import calcaDomAsset from "@/assets/calca-dom.jpg.asset.json";
+import blusaNathyAsset from "@/assets/blusa-nathy.jpg.asset.json";
+import shortAnaAsset from "@/assets/short-ana.jpg.asset.json";
 
 export type Product = {
   id: string;
