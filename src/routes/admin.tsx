@@ -163,6 +163,19 @@ function AdminPage() {
                 />
               </div>
               <div>
+                <Label htmlFor="images">Mais fotos (um link por linha)</Label>
+                <Textarea
+                  id="images"
+                  rows={3}
+                  placeholder={"https://foto2.jpg\nhttps://foto3.jpg"}
+                  value={form.images}
+                  onChange={(e) => setForm({ ...form, images: e.target.value })}
+                />
+                <p className="mt-1 text-xs text-muted-foreground">
+                  Aparecem como galeria na vitrine, estilo Instagram.
+                </p>
+              </div>
+              <div>
                 <Label htmlFor="category">Categoria</Label>
                 <Input
                   id="category"
