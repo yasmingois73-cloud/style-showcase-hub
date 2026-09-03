@@ -1,6 +1,6 @@
 // Converte uma foto do celular/computador em uma imagem compacta (data URL),
 // para poder ser salva no navegador sem estourar o limite do localStorage.
-export async function fileToCompressedDataUrl(file: File, maxSide = 1000, quality = 0.75) {
+export async function fileToCompressedDataUrl(file: File, maxSide = 800, quality = 0.7) {
   const dataUrl = await new Promise<string>((resolve, reject) => {
     const reader = new FileReader();
     reader.onload = () => resolve(String(reader.result));
