@@ -104,7 +104,7 @@ function AdminPage() {
       price,
       image: form.image.trim() || "https://placehold.co/900x1100?text=Sem+foto",
       images: form.images
-        .split(/[\n,]/)
+        .split("\n")
         .map((s) => s.trim())
         .filter(Boolean)
         .slice(0, 10),
