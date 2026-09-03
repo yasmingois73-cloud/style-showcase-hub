@@ -23,7 +23,17 @@ export const Route = createFileRoute("/admin")({
   component: AdminPage,
 });
 
-const emptyForm = { id: "", name: "", price: "", image: "", category: "", description: "", sizes: "", colors: "" };
+const emptyForm = {
+  id: "",
+  name: "",
+  price: "",
+  image: "",
+  images: "",
+  category: "",
+  description: "",
+  sizes: "",
+  colors: "",
+};
 
 function AdminPage() {
   const { isAdmin, login, logout } = useAdminSession();
