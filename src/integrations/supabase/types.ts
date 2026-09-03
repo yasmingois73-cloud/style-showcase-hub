@@ -14,7 +14,90 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      pedidos: {
+        Row: {
+          address: string
+          created_at: string
+          customer_name: string
+          id: string
+          items: Json
+          notes: string
+          phone: string
+          status: string
+          total: number
+          updated_at: string
+        }
+        Insert: {
+          address?: string
+          created_at?: string
+          customer_name: string
+          id?: string
+          items?: Json
+          notes?: string
+          phone: string
+          status?: string
+          total?: number
+          updated_at?: string
+        }
+        Update: {
+          address?: string
+          created_at?: string
+          customer_name?: string
+          id?: string
+          items?: Json
+          notes?: string
+          phone?: string
+          status?: string
+          total?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      produtos: {
+        Row: {
+          category: string
+          colors: string[]
+          created_at: string
+          description: string
+          id: string
+          image: string
+          images: string[]
+          name: string
+          position: number
+          price: number
+          sizes: string[]
+          updated_at: string
+        }
+        Insert: {
+          category?: string
+          colors?: string[]
+          created_at?: string
+          description?: string
+          id: string
+          image?: string
+          images?: string[]
+          name: string
+          position?: number
+          price?: number
+          sizes?: string[]
+          updated_at?: string
+        }
+        Update: {
+          category?: string
+          colors?: string[]
+          created_at?: string
+          description?: string
+          id?: string
+          image?: string
+          images?: string[]
+          name?: string
+          position?: number
+          price?: number
+          sizes?: string[]
+          updated_at?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
