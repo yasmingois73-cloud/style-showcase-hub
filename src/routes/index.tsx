@@ -5,7 +5,7 @@ import { toast } from "sonner";
 import heroAsset from "@/assets/hero-catalogo.jpg.asset.json";
 import { SiteFooter, SiteHeader } from "@/components/SiteHeader";
 import { Button } from "@/components/ui/button";
-import { brl, useCart, useProducts, type Product } from "@/lib/shop";
+import { brl, colorSwatch, useCart, useProducts, type Product } from "@/lib/shop";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -29,6 +29,8 @@ export const Route = createFileRoute("/")({
 function ProductCard({ product }: { product: Product }) {
   const { add } = useCart();
   const [size, setSize] = useState(product.sizes[0] ?? "Único");
+  const colors = product.colors ?? [];
+  const [color, setColor] = useState(colors[0] ?? "Única");
 
   return (
     <article className="group">
@@ -62,12 +64,34 @@ function ProductCard({ product }: { product: Product }) {
           ))}
         </div>
 
+        {colors.length > 0 && (
+          <div className="flex flex-wrap items-center gap-2 pt-2">
+            {colors.map((c) => (
+              <button
+                key={c}
+                onClick={() => setColor(c)}
+                aria-label={`Cor ${c}`}
+                title={c}
+                className={`flex items-center gap-1.5 rounded-full border px-2 py-1 text-xs transition-colors ${
+                  color === c ? "border-foreground text-foreground" : "border-border text-muted-foreground hover:border-foreground"
+                }`}
+              >
+                <span
+                  className="h-3.5 w-3.5 rounded-full border border-border"
+                  style={{ backgroundColor: colorSwatch(c) }}
+                />
+                {c}
+              </button>
+            ))}
+          </div>
+        )}
+
         <Button
           variant="soft"
           className="mt-3 w-full"
           onClick={() => {
-            add(product.id, size);
-            toast.success(`${product.name} (${size}) adicionado à sacola`);
+            add(product.id, size, color);
+            toast.success(`${product.name} (${size} · ${color}) adicionado à sacola`);
           }}
         >
           Adicionar à sacola
