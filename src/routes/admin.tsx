@@ -120,9 +120,12 @@ function AdminPage() {
         .map((c) => c.trim())
         .filter(Boolean)
         .slice(0, 12),
-    });
-    setForm(emptyForm);
-    toast.success("Peça salva!");
+      });
+      setForm(emptyForm);
+      toast.success("Peça salva!");
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Não consegui salvar a peça");
+    }
   };
 
   return (
