@@ -104,7 +104,7 @@ function AdminPage() {
       price,
       image: form.image.trim() || "https://placehold.co/900x1100?text=Sem+foto",
       images: form.images
-        .split(/[\n,]/)
+        .split("\n")
         .map((s) => s.trim())
         .filter(Boolean)
         .slice(0, 10),
@@ -195,12 +195,17 @@ function AdminPage() {
               </div>
               <div>
                 <Label htmlFor="images">Mais fotos (galeria)</Label>
-                <Textarea
+                <Input
                   id="images"
-                  rows={3}
-                  placeholder={"https://foto2.jpg\nhttps://foto3.jpg"}
-                  value={form.images}
-                  onChange={(e) => setForm({ ...form, images: e.target.value })}
+                  placeholder="Cole um link https://... e aperte Enter"
+                  onKeyDown={(e) => {
+                    if (e.key !== "Enter") return;
+                    e.preventDefault();
+                    const url = e.currentTarget.value.trim();
+                    if (!url) return;
+                    setForm((f) => ({ ...f, images: [f.images, url].filter(Boolean).join("\n") }));
+                    e.currentTarget.value = "";
+                  }}
                 />
                 <div className="mt-2 flex flex-wrap items-center gap-3">
                   <label className="cursor-pointer rounded-full border border-border px-3 py-1.5 text-xs text-foreground hover:border-foreground">
@@ -228,12 +233,26 @@ function AdminPage() {
                     />
                   </label>
                   {form.images
-                    .split(/[\n,]/)
+                    .split("\n")
                     .map((s) => s.trim())
                     .filter(Boolean)
-                    .slice(0, 6)
-                    .map((src, i) => (
-                      <img key={i} src={src} alt="" className="h-14 w-12 rounded object-cover" />
+                    .map((src, i, arr) => (
+                      <div key={i} className="relative">
+                        <img src={src} alt="" className="h-14 w-12 rounded object-cover" />
+                        <button
+                          type="button"
+                          aria-label="Remover foto"
+                          className="absolute -right-2 -top-2 rounded-full border border-border bg-background px-1.5 text-xs text-foreground"
+                          onClick={() =>
+                            setForm((f) => ({
+                              ...f,
+                              images: arr.filter((_, j) => j !== i).join("\n"),
+                            }))
+                          }
+                        >
+                          ×
+                        </button>
+                      </div>
                     ))}
                 </div>
                 <p className="mt-1 text-xs text-muted-foreground">
