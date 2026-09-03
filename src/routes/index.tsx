@@ -44,6 +44,9 @@ function ProductCard({ product }: { product: Product }) {
           src={gallery[current]}
           alt={`${product.name} — foto ${current + 1}`}
           loading="lazy"
+          onError={(e) => {
+            e.currentTarget.src = "https://placehold.co/900x1100/e8eefc/1f2c4c?text=Foto+indispon%C3%ADvel";
+          }}
           className="aspect-[9/11] w-full object-cover transition-transform duration-700 group-hover:scale-105"
         />
         {gallery.length > 1 && (
