@@ -27,7 +27,7 @@ export function productImages(product: Product) {
 
 export type CartItem = { id: string; size: string; color: string; qty: number };
 
-export const WHATSAPP_NUMBER = "5585945144478"; // número correto: +55 85 9451-4478
+export const WHATSAPP_NUMBER = "55859945144478"; // número correto: +55 85 9451-4478
 export const ADMIN_PASSWORD = "anadom2026"; // senha simples de demonstração
 
 const PRODUCTS_KEY = "uad:products:v3";
@@ -122,9 +122,7 @@ function write(key: string, value: unknown) {
   try {
     localStorage.setItem(key, JSON.stringify(value));
   } catch {
-    throw new Error(
-      "As fotos ficaram muito pesadas para o navegador. Remova algumas fotos ou envie imagens menores.",
-    );
+    throw new Error("As fotos ficaram muito pesadas para o navegador. Remova algumas fotos ou envie imagens menores.");
   }
   window.dispatchEvent(new CustomEvent("uad:store"));
 }
@@ -196,8 +194,7 @@ export function useCart() {
         : items.map((i) => (same(i, id, size, color) ? { ...i, qty } : i)),
     );
 
-  const remove = (id: string, size: string, color: string) =>
-    setItems(items.filter((i) => !same(i, id, size, color)));
+  const remove = (id: string, size: string, color: string) => setItems(items.filter((i) => !same(i, id, size, color)));
 
   const clear = () => setItems([]);
 
@@ -227,7 +224,7 @@ const COLOR_HEX: Record<string, string> = {
   cru: "#e8dfcf",
   bege: "#d8c3a5",
   marinho: "#1f2c4c",
-  "bordô": "#5d1a2b",
+  bordô: "#5d1a2b",
   marrom: "#6b4a34",
 };
 
