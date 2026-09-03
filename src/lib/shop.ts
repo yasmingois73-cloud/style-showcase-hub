@@ -20,7 +20,7 @@ export type Product = {
 
 export type CartItem = { id: string; size: string; qty: number };
 
-export const WHATSAPP_NUMBER = "5511999999999"; // troque pelo seu número
+export const WHATSAPP_NUMBER = "55859994514478"; // troque pelo seu número
 export const ADMIN_PASSWORD = "anadom2026"; // senha simples de demonstração
 
 const PRODUCTS_KEY = "uad:products:v2";
