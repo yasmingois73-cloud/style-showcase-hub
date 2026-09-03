@@ -77,6 +77,7 @@ function AdminPage() {
       name: p.name,
       price: String(p.price),
       image: p.image,
+      images: (p.images ?? []).join("\n"),
       category: p.category,
       description: p.description,
       sizes: p.sizes.join(", "),
