@@ -10,6 +10,8 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { fileToCompressedDataUrl } from "@/lib/image-upload";
 import { brl, useAdminSession, useProducts, type Product } from "@/lib/shop";
+import { listOrdersFn } from "@/lib/shop.functions";
+import { useQuery } from "@tanstack/react-query";
 
 
 export const Route = createFileRoute("/admin")({
@@ -38,8 +40,13 @@ const emptyForm = {
 };
 
 function AdminPage() {
-  const { isAdmin, login, logout } = useAdminSession();
-  const { products, saveProduct, removeProduct, resetProducts } = useProducts();
+  const { isAdmin, login, logout, password: adminPassword } = useAdminSession();
+  const { products, saveProduct, removeProduct } = useProducts();
+  const orders = useQuery({
+    queryKey: ["pedidos", adminPassword],
+    queryFn: () => listOrdersFn({ data: { password: adminPassword } }),
+    enabled: isAdmin,
+  });
   const [password, setPassword] = useState("");
   const [form, setForm] = useState(emptyForm);
 
@@ -57,12 +64,18 @@ function AdminPage() {
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              onKeyDown={(e) => e.key === "Enter" && (login(password) || toast.error("Senha incorreta"))}
+              onKeyDown={async (e) => {
+                if (e.key !== "Enter") return;
+                if (!(await login(password))) toast.error("Senha incorreta");
+              }}
             />
             <Button
               variant="hero"
               className="w-full"
-              onClick={() => (login(password) ? toast.success("Bem-vinda!") : toast.error("Senha incorreta"))}
+              onClick={async () => {
+                if (await login(password)) toast.success("Bem-vinda!");
+                else toast.error("Senha incorreta");
+              }}
             >
               Entrar
             </Button>
@@ -97,8 +110,9 @@ function AdminPage() {
       return;
     }
 
-    try {
-      saveProduct({
+    void (async () => {
+     try {
+      await saveProduct({
       id: form.id || crypto.randomUUID(),
       name: form.name.trim().slice(0, 80),
       price,
@@ -120,12 +134,13 @@ function AdminPage() {
         .map((c) => c.trim())
         .filter(Boolean)
         .slice(0, 12),
-      });
+      }, adminPassword);
       setForm(emptyForm);
       toast.success("Peça salva!");
-    } catch (err) {
+     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Não consegui salvar a peça");
-    }
+     }
+    })();
   };
 
   return (
@@ -311,9 +326,7 @@ function AdminPage() {
           <section>
             <div className="flex items-center justify-between">
               <h2 className="font-display text-2xl text-foreground">Peças cadastradas</h2>
-              <button className="text-xs text-muted-foreground hover:text-foreground" onClick={resetProducts}>
-                Restaurar exemplo
-              </button>
+              <span className="text-xs text-muted-foreground">Salvo no banco — todos veem</span>
             </div>
             <ul className="mt-5 space-y-3">
               {products.map((p) => (
@@ -330,9 +343,13 @@ function AdminPage() {
                   </button>
                   <button
                     className="p-2 text-muted-foreground hover:text-destructive"
-                    onClick={() => {
-                      removeProduct(p.id);
-                      toast.success("Peça removida");
+                    onClick={async () => {
+                      try {
+                        await removeProduct(p.id, adminPassword);
+                        toast.success("Peça removida");
+                      } catch {
+                        toast.error("Não consegui remover a peça");
+                      }
                     }}
                   >
                     <Trash2 className="h-4 w-4" />
@@ -342,6 +359,37 @@ function AdminPage() {
             </ul>
           </section>
         </div>
+
+        <section className="mt-14">
+          <h2 className="font-display text-2xl text-foreground">Pedidos recebidos</h2>
+          {orders.data && orders.data.length > 0 ? (
+            <ul className="mt-5 space-y-3">
+              {orders.data.map((o) => (
+                <li key={o.id} className="rounded-lg border border-border p-4">
+                  <div className="flex flex-wrap items-baseline justify-between gap-2">
+                    <p className="font-display text-lg text-foreground">{o.customer_name}</p>
+                    <p className="text-sm text-foreground">{brl(Number(o.total))}</p>
+                  </div>
+                  <p className="text-sm text-muted-foreground">
+                    {o.phone} · {new Date(o.created_at).toLocaleString("pt-BR")}
+                  </p>
+                  {o.address && <p className="text-sm text-muted-foreground">{o.address}</p>}
+                  <ul className="mt-2 space-y-1 text-sm text-muted-foreground">
+                    {(o.items as { name: string; size: string; color: string; qty: number }[]).map((it, i) => (
+                      <li key={i}>
+                        {it.qty}× {it.name} — tam {it.size}
+                        {it.color ? ` · ${it.color}` : ""}
+                      </li>
+                    ))}
+                  </ul>
+                  {o.notes && <p className="mt-2 text-sm text-muted-foreground">Obs.: {o.notes}</p>}
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <p className="mt-4 text-sm text-muted-foreground">Nenhum pedido registrado ainda.</p>
+          )}
+        </section>
       </main>
 
       <SiteFooter />

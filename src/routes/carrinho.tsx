@@ -9,7 +9,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { brl, colorSwatch, useCart, useProducts, WHATSAPP_NUMBER } from "@/lib/shop";
+import { productsQueryOptions, brl, colorSwatch, useCart, useProducts, WHATSAPP_NUMBER } from "@/lib/shop";
+import { createOrderFn } from "@/lib/shop.functions";
 
 export const Route = createFileRoute("/carrinho")({
   head: () => ({
@@ -20,6 +21,7 @@ export const Route = createFileRoute("/carrinho")({
       { property: "og:description", content: "Revise suas peças e finalize o pedido pelo WhatsApp." },
     ],
   }),
+  loader: ({ context }) => context.queryClient.ensureQueryData(productsQueryOptions()),
   component: CartPage,
 });
 
@@ -67,6 +69,24 @@ function CartPage() {
     ]
       .filter(Boolean)
       .join("\n");
+
+    void createOrderFn({
+      data: {
+        customer_name: d.name,
+        phone: d.phone,
+        address: d.address,
+        notes: d.notes ?? "",
+        total,
+        items: lines.map((l) => ({
+          id: l.id,
+          name: l.product!.name,
+          size: l.size,
+          color: l.color,
+          qty: l.qty,
+          price: l.product!.price,
+        })),
+      },
+    }).catch(() => undefined);
 
     window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(text)}`, "_blank", "noopener");
     toast.success("Pedido enviado para o WhatsApp!");

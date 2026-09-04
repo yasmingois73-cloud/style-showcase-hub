@@ -1,12 +1,8 @@
 import { useCallback, useEffect, useState } from "react";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 
-import conjuntoShortAsset from "@/assets/conjunto-short.jpg.asset.json";
-import conjuntoCalcaAsset from "@/assets/conjunto-calca.jpg.asset.json";
-import blusaDomAsset from "@/assets/blusa-dom.jpg.asset.json";
-import shortDomAsset from "@/assets/short-dom.jpg.asset.json";
-import calcaDomAsset from "@/assets/calca-dom.jpg.asset.json";
-import blusaNathyAsset from "@/assets/blusa-nathy.jpg.asset.json";
-import shortAnaAsset from "@/assets/short-ana.jpg.asset.json";
+import { checkAdminPassword, deleteProductFn, listProducts, saveProductFn } from "@/lib/shop.functions";
+
 
 export type Product = {
   id: string;
@@ -18,6 +14,7 @@ export type Product = {
   description: string;
   sizes: string[];
   colors: string[];
+  position?: number;
 };
 
 export function productImages(product: Product) {
@@ -28,84 +25,9 @@ export function productImages(product: Product) {
 export type CartItem = { id: string; size: string; color: string; qty: number };
 
 export const WHATSAPP_NUMBER = "5585994514478"; // +55 85 99451-4478
-export const ADMIN_PASSWORD = "anadom2026"; // senha simples de demonstração
 
-const PRODUCTS_KEY = "uad:products:v3";
 const CART_KEY = "uad:cart:v2";
 const ADMIN_KEY = "uad:admin";
-
-export const defaultProducts: Product[] = [
-  {
-    id: "conjunto-dom-short",
-    name: "Conjunto Dom — Blusa + Short",
-    price: 109.9,
-    image: conjuntoShortAsset.url,
-    category: "Conjuntos",
-    description: "Combinação moderna e chique: blusa peplum com decote V e short de cintura alta.",
-    sizes: ["P", "M"],
-    colors: ["Preto", "Bordô", "Cru", "Marinho"],
-  },
-  {
-    id: "conjunto-dom-calca",
-    name: "Conjunto Dom — Blusa + Calça",
-    price: 119.9,
-    image: conjuntoCalcaAsset.url,
-    category: "Conjuntos",
-    description: "Elegância do dia à noite: blusa peplum com calça de alfaiataria no mesmo tecido.",
-    sizes: ["P", "M"],
-    colors: ["Marinho", "Bordô", "Cru"],
-  },
-  {
-    id: "blusa-dom",
-    name: "Blusa Dom",
-    price: 59.9,
-    image: blusaDomAsset.url,
-    category: "Blusas",
-    description: "Peplum com decote transpassado e amarração. Disponível em preto, bordô, cru e marinho.",
-    sizes: ["P", "M"],
-    colors: ["Preto", "Bordô", "Cru", "Marinho"],
-  },
-  {
-    id: "short-dom",
-    name: "Short Dom",
-    price: 59.9,
-    image: shortDomAsset.url,
-    category: "Shorts",
-    description: "Cintura alta e caimento confortável — combina perfeito com a Blusa Dom.",
-    sizes: ["P", "M"],
-    colors: ["Preto", "Bordô", "Cru", "Marinho"],
-  },
-  {
-    id: "calca-dom",
-    name: "Calça Dom",
-    price: 69.9,
-    image: calcaDomAsset.url,
-    category: "Calças",
-    description: "Alfaiataria leve com amarração. Nas cores marinho, bordô e cru.",
-    sizes: ["P", "M"],
-    colors: ["Marinho", "Bordô", "Cru"],
-  },
-  {
-    id: "blusa-nathy",
-    name: "Blusa Nathy",
-    price: 44.9,
-    image: blusaNathyAsset.url,
-    category: "Blusas",
-    description: "A mais querida: estilo e conforto em alcinha canelada. Vários tons disponíveis.",
-    sizes: ["P", "M"],
-    colors: ["Preto", "Branco", "Bege", "Marinho"],
-  },
-  {
-    id: "short-ana",
-    name: "Short Ana",
-    price: 59.9,
-    image: shortAnaAsset.url,
-    category: "Shorts",
-    description: "Cintura alta com passantes para cinto. Nas cores marrom, branco e preto.",
-    sizes: ["PP", "P", "M"],
-    colors: ["Marrom", "Branco", "Preto"],
-  },
-];
 
 function read<T>(key: string, fallback: T): T {
   if (typeof window === "undefined") return fallback;
@@ -153,23 +75,33 @@ function useStored<T>(key: string, fallback: T) {
   return [value, update] as const;
 }
 
+export function productsQueryOptions() {
+  return {
+    queryKey: ["produtos"],
+    queryFn: () => listProducts(),
+  };
+}
+
 export function useProducts() {
-  const [products, setProducts] = useStored<Product[]>(PRODUCTS_KEY, defaultProducts);
+  const queryClient = useQueryClient();
+  const { data } = useQuery(productsQueryOptions());
+  const products = (data ?? []) as Product[];
 
-  useEffect(() => {
-    if (!localStorage.getItem(PRODUCTS_KEY)) write(PRODUCTS_KEY, defaultProducts);
-  }, []);
+  const refresh = () => queryClient.invalidateQueries({ queryKey: ["produtos"] });
 
-  const saveProduct = (product: Product) => {
-    const exists = products.some((p) => p.id === product.id);
-    setProducts(exists ? products.map((p) => (p.id === product.id ? product : p)) : [product, ...products]);
+  const saveProduct = async (product: Product, password: string) => {
+    const position =
+      products.find((p) => p.id === product.id)?.position ?? (products.at(-1)?.position ?? 0) + 1;
+    await saveProductFn({ data: { password, product: { ...product, images: product.images ?? [], position } } });
+    await refresh();
   };
 
-  const removeProduct = (id: string) => setProducts(products.filter((p) => p.id !== id));
+  const removeProduct = async (id: string, password: string) => {
+    await deleteProductFn({ data: { password, id } });
+    await refresh();
+  };
 
-  const resetProducts = () => setProducts(defaultProducts);
-
-  return { products, saveProduct, removeProduct, resetProducts };
+  return { products, saveProduct, removeProduct, refresh };
 }
 
 export function useCart() {
@@ -206,9 +138,11 @@ export function useCart() {
 export function useAdminSession() {
   const [token, setToken] = useStored<string>(ADMIN_KEY, "");
   return {
-    isAdmin: token === ADMIN_PASSWORD,
-    login: (password: string) => {
-      if (password !== ADMIN_PASSWORD) return false;
+    password: token,
+    isAdmin: token.length > 0,
+    login: async (password: string) => {
+      const { ok } = await checkAdminPassword({ data: { password } });
+      if (!ok) return false;
       setToken(password);
       return true;
     },

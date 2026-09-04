@@ -6,7 +6,7 @@ import { ChevronLeft, ChevronRight } from "lucide-react";
 import heroAsset from "@/assets/hero-catalogo.jpg.asset.json";
 import { SiteFooter, SiteHeader } from "@/components/SiteHeader";
 import { Button } from "@/components/ui/button";
-import { brl, colorSwatch, productImages, useCart, useProducts, type Product } from "@/lib/shop";
+import { productsQueryOptions, brl, colorSwatch, productImages, useCart, useProducts, type Product } from "@/lib/shop";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -24,6 +24,7 @@ export const Route = createFileRoute("/")({
       },
     ],
   }),
+  loader: ({ context }) => context.queryClient.ensureQueryData(productsQueryOptions()),
   component: Home,
 });
 
