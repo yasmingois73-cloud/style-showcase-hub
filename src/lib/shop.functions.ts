@@ -13,9 +13,10 @@ const productSchema = z.object({
   description: z.string().trim().max(300).default(""),
   sizes: z.array(z.string().trim().max(10)).max(8).default([]),
   colors: z.array(z.string().trim().max(20)).max(12).default([]),
+  position: z.number().int().min(0).max(100000).default(0),
 });
 
-export type ProductRow = z.infer<typeof productSchema> & { position: number };
+export type ProductRow = z.infer<typeof productSchema>;
 
 function requireAdmin(password: string) {
   if (password !== ADMIN_PASSWORD) throw new Error("Senha incorreta");
