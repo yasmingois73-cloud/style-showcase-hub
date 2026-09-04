@@ -9,7 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { brl, colorSwatch, useCart, useProducts, WHATSAPP_NUMBER } from "@/lib/shop";
+import { productsQueryOptions, brl, colorSwatch, useCart, useProducts, WHATSAPP_NUMBER } from "@/lib/shop";
 import { createOrderFn } from "@/lib/shop.functions";
 
 export const Route = createFileRoute("/carrinho")({
@@ -21,6 +21,7 @@ export const Route = createFileRoute("/carrinho")({
       { property: "og:description", content: "Revise suas peças e finalize o pedido pelo WhatsApp." },
     ],
   }),
+  loader: ({ context }) => context.queryClient.ensureQueryData(productsQueryOptions()),
   component: CartPage,
 });
 
