@@ -1,4 +1,7 @@
 import { useCallback, useEffect, useState } from "react";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+
+import { deleteProductFn, listProducts, saveProductFn } from "@/lib/shop.functions";
 
 import conjuntoShortAsset from "@/assets/conjunto-short.jpg.asset.json";
 import conjuntoCalcaAsset from "@/assets/conjunto-calca.jpg.asset.json";
@@ -18,6 +21,7 @@ export type Product = {
   description: string;
   sizes: string[];
   colors: string[];
+  position?: number;
 };
 
 export function productImages(product: Product) {
@@ -153,23 +157,33 @@ function useStored<T>(key: string, fallback: T) {
   return [value, update] as const;
 }
 
+export function productsQueryOptions() {
+  return {
+    queryKey: ["produtos"],
+    queryFn: () => listProducts(),
+  };
+}
+
 export function useProducts() {
-  const [products, setProducts] = useStored<Product[]>(PRODUCTS_KEY, defaultProducts);
+  const queryClient = useQueryClient();
+  const { data } = useQuery(productsQueryOptions());
+  const products = (data ?? []) as Product[];
 
-  useEffect(() => {
-    if (!localStorage.getItem(PRODUCTS_KEY)) write(PRODUCTS_KEY, defaultProducts);
-  }, []);
+  const refresh = () => queryClient.invalidateQueries({ queryKey: ["produtos"] });
 
-  const saveProduct = (product: Product) => {
-    const exists = products.some((p) => p.id === product.id);
-    setProducts(exists ? products.map((p) => (p.id === product.id ? product : p)) : [product, ...products]);
+  const saveProduct = async (product: Product, password: string) => {
+    const position =
+      products.find((p) => p.id === product.id)?.position ?? (products.at(-1)?.position ?? 0) + 1;
+    await saveProductFn({ data: { password, product: { ...product, images: product.images ?? [], position } } });
+    await refresh();
   };
 
-  const removeProduct = (id: string) => setProducts(products.filter((p) => p.id !== id));
+  const removeProduct = async (id: string, password: string) => {
+    await deleteProductFn({ data: { password, id } });
+    await refresh();
+  };
 
-  const resetProducts = () => setProducts(defaultProducts);
-
-  return { products, saveProduct, removeProduct, resetProducts };
+  return { products, saveProduct, removeProduct, refresh };
 }
 
 export function useCart() {
